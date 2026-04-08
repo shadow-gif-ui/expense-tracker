@@ -1,0 +1,2262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker | Complete Solution</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+
+        body.dark-mode .navbar,
+        body.dark-mode .card,
+        body.dark-mode .table-container,
+        body.dark-mode .form-card,
+        body.dark-mode .welcome-banner,
+        body.dark-mode .modal-content {
+            background: rgba(30, 30, 46, 0.95);
+        }
+
+        body.dark-mode .card-header h2,
+        body.dark-mode .table-header h2,
+        body.dark-mode .welcome-text h2,
+        body.dark-mode .logo,
+        body.dark-mode h2,
+        body.dark-mode h3,
+        body.dark-mode label {
+            color: #eee;
+        }
+
+        body.dark-mode .welcome-text p,
+        body.dark-mode .form-header p {
+            color: #aaa;
+        }
+
+        body.dark-mode th {
+            background: #1a1a2e;
+            color: #ddd;
+        }
+
+        body.dark-mode td {
+            border-bottom-color: #333;
+            color: #ccc;
+        }
+
+        body.dark-mode tr[style*="background"] {
+            background: #2d2d1a !important;
+        }
+
+        body.dark-mode input,
+        body.dark-mode select {
+            background: #1a1a2e;
+            border-color: #333;
+            color: #eee;
+        }
+
+        body.dark-mode .insight-box,
+        body.dark-mode .budget-section {
+            background: #1a1a2e;
+        }
+
+        body.dark-mode .category-name,
+        body.dark-mode .category-amount {
+            color: #ddd;
+        }
+
+        body.dark-mode .modal-content {
+            background: #1a1a2e;
+        }
+
+        /* Login page always light mode */
+        #loginSection {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        #loginSection .card,
+        #loginSection .modal-content,
+        #loginSection .navbar {
+            background: rgba(255, 255, 255, 0.95) !important;
+        }
+
+        #loginSection h2,
+        #loginSection label,
+        #loginSection p {
+            color: #333 !important;
+        }
+
+        #loginSection input,
+        #loginSection select {
+            background: white !important;
+            border-color: #e0e0e0 !important;
+            color: #333 !important;
+        }
+
+        #loginSection .demo-credentials {
+            background: #f8f9fa !important;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 40px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .nav-links button {
+            background: none;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            color: #555;
+        }
+
+        .nav-links button.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .nav-links button:hover {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* User Dropdown */
+        .user-dropdown {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .user-greeting {
+            color: #667eea;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 15px;
+            border-radius: 30px;
+            transition: all 0.3s;
+        }
+
+        .user-greeting:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .user-greeting i {
+            font-size: 20px;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 10px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            min-width: 220px;
+            overflow: hidden;
+            z-index: 1001;
+            display: none;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .dropdown-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #333;
+            text-decoration: none;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        .dropdown-item:hover {
+            background: #f0f4ff;
+        }
+
+        .dropdown-item i {
+            width: 20px;
+            color: #667eea;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: #eee;
+            margin: 5px 0;
+        }
+
+        body.dark-mode .dropdown-menu {
+            background: #1a1a2e;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        body.dark-mode .dropdown-item {
+            color: #eee;
+        }
+
+        body.dark-mode .dropdown-item:hover {
+            background: #2a2a3e;
+        }
+
+        body.dark-mode .dropdown-divider {
+            background: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .welcome-banner {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            padding: 25px 35px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .welcome-text h2 {
+            font-size: 26px;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .welcome-text p {
+            color: #666;
+        }
+
+        .stat-badge {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: 500;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .dashboard-grid-2 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-header h2 {
+            font-size: 20px;
+            color: #333;
+            border-left: 4px solid #667eea;
+            padding-left: 15px;
+        }
+
+        .badge {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        .total-expense {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .total-expense .amount {
+            font-size: 48px;
+            font-weight: 800;
+        }
+
+        .chart-container {
+            max-height: 280px;
+            margin-top: 10px;
+        }
+
+        .chart-toggle-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            justify-content: center;
+        }
+
+        .chart-toggle-buttons button {
+            padding: 5px 15px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        #pieChartBtn {
+            background: #667eea;
+            color: white;
+        }
+
+        #barChartBtn {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        body.dark-mode #barChartBtn {
+            background: #333;
+            color: white;
+        }
+
+        .category-list {
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .category-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .category-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .category-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .category-name {
+            font-weight: 500;
+            color: #555;
+        }
+
+        .category-stats {
+            display: flex;
+            gap: 20px;
+        }
+
+        .category-amount {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .category-percent {
+            color: #888;
+            font-size: 12px;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: #e0e0e0;
+            border-radius: 2px;
+            margin-bottom: 5px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.5s ease;
+        }
+
+        .budget-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 15px;
+        }
+
+        .budget-section h3 {
+            font-size: 14px;
+            margin-bottom: 12px;
+            color: #333;
+        }
+
+        .budget-input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .budget-input-group input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+
+        .btn-set-budget {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .budget-warning {
+            background: #ff6b6b;
+            color: white;
+            padding: 12px;
+            border-radius: 10px;
+            margin-top: 10px;
+            font-size: 13px;
+            text-align: center;
+        }
+
+        .budget-safe {
+            background: #4ecdc4;
+            color: white;
+            padding: 12px;
+            border-radius: 10px;
+            margin-top: 10px;
+            font-size: 13px;
+            text-align: center;
+        }
+
+        .budget-info {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            border-radius: 10px;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .insight-box {
+            background: #f0f4ff;
+            padding: 12px 15px;
+            border-radius: 15px;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            color: #667eea;
+        }
+
+        .table-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .table-header h2 {
+            font-size: 20px;
+            color: #333;
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .filter-group i {
+            position: absolute;
+            left: 12px;
+            color: #999;
+        }
+
+        .filter-group select, .filter-group input {
+            padding: 10px 15px 10px 35px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .btn-reset, .btn-export, .btn-clear {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: white;
+        }
+
+        .btn-reset { background: linear-gradient(135deg, #667eea, #764ba2); }
+        .btn-export { background: linear-gradient(135deg, #28a745, #20c997); }
+        .btn-clear { background: #ff6b6b; }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 15px 12px;
+            background: #f8f9fa;
+            color: #555;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 15px 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .category-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .category-badge.food { background: #FF6B6B20; color: #FF6B6B; }
+        .category-badge.transport { background: #4ECDC420; color: #4ECDC4; }
+        .category-badge.shopping { background: #45B7D120; color: #45B7D1; }
+        .category-badge.bills { background: #96CEB420; color: #96CEB4; }
+        .category-badge.entertainment { background: #FFEAA720; color: #D4A000; }
+        .category-badge.health { background: #DDA0DD20; color: #DDA0DD; }
+
+        .recurring-badge {
+            margin-left: 5px;
+            font-size: 10px;
+            background: #667eea;
+            padding: 2px 6px;
+            border-radius: 10px;
+            color: white;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-edit, .btn-delete {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .btn-edit { background: #4ecdc4; color: white; }
+        .btn-delete { background: #ff6b6b; color: white; }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 25px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+        }
+
+        .modal-icon i {
+            font-size: 28px;
+            color: white;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 5px;
+        }
+
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: normal;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .btn-save, .btn-cancel {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-cancel {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        .login-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-card {
+            max-width: 450px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        .login-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        .login-icon i {
+            font-size: 40px;
+            color: white;
+        }
+
+        .toggle-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            background: #f0f0f0;
+            padding: 5px;
+            border-radius: 50px;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: transparent;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .toggle-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .form-container {
+            display: none;
+        }
+
+        .form-container.active-form {
+            display: block;
+        }
+
+        .demo-credentials {
+            margin-top: 25px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .demo-credentials .demo-box {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            font-size: 12px;
+            color: #667eea;
+        }
+
+        .message {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+        }
+
+        .message.error {
+            background: #fee2e2;
+            color: #ff6b6b;
+            display: block;
+        }
+
+        .message.success {
+            background: #e0f7e8;
+            color: #4ecdc4;
+            display: block;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: rgba(255,255,255,0.8);
+            font-size: 14px;
+        }
+
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 12px 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 3000;
+        }
+
+        /* Profile Page Styles */
+        .profile-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .profile-card {
+            padding: 35px;
+        }
+
+        .profile-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .profile-avatar i {
+            font-size: 100px;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .profile-header h2 {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .profile-header p {
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .profile-badge {
+            display: inline-block;
+            background: #f0f4ff;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #667eea;
+        }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        .profile-section {
+            margin-bottom: 25px;
+        }
+
+        .profile-section h3 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #333;
+            border-left: 4px solid #667eea;
+            padding-left: 12px;
+        }
+
+        .settings-list {
+            background: #f8f9fa;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: background 0.3s;
+            border-bottom: 1px solid #eee;
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .setting-item:hover {
+            background: #e9ecef;
+        }
+
+        .setting-item i:first-child {
+            margin-right: 10px;
+            color: #667eea;
+        }
+
+        .insight-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .insight-item:last-child {
+            border-bottom: none;
+        }
+
+        .profile-actions {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .btn-logout {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .btn-logout:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255,107,107,0.3);
+        }
+
+        .data-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .data-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .data-option:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .data-option.danger {
+            color: #ff6b6b;
+        }
+
+        .data-option.danger:hover {
+            background: #ffe0e0;
+        }
+
+        .comparison-value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .comparison-up { color: #ff6b6b; }
+        .comparison-down { color: #4ecdc4; }
+        .comparison-neutral { color: #f9ca24; }
+
+        body.dark-mode .profile-header h2,
+        body.dark-mode .stat-value,
+        body.dark-mode .profile-section h3 {
+            color: #eee;
+        }
+
+        body.dark-mode .settings-list,
+        body.dark-mode .data-option {
+            background: #1a1a2e;
+        }
+
+        body.dark-mode .setting-item {
+            border-bottom-color: #333;
+        }
+
+        body.dark-mode .setting-item:hover,
+        body.dark-mode .data-option:hover {
+            background: #2a2a3e;
+        }
+
+        body.dark-mode .profile-badge {
+            background: #1a1a2e;
+        }
+
+        body.dark-mode .insight-item {
+            border-bottom-color: #333;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 900px) {
+            .dashboard-grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .profile-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            .navbar {
+                flex-direction: column;
+            }
+            .welcome-banner {
+                flex-direction: column;
+                text-align: center;
+            }
+            .table-header {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="appSection" style="display: none;">
+        <nav class="navbar">
+            <div class="logo"><i class="fas fa-wallet"></i> ExpenseTracker</div>
+            <div class="nav-links">
+                <button class="active" onclick="showPage('dashboard')"><i class="fas fa-home"></i> Dashboard</button>
+                <button onclick="openAddModal()"><i class="fas fa-plus-circle"></i> Add Expense</button>
+                <button onclick="toggleDarkMode()"><i class="fas fa-moon"></i> Dark Mode</button>
+            </div>
+            <div class="user-dropdown">
+                <div class="user-greeting" onclick="toggleDropdown()">
+                    <i class="fas fa-user-circle"></i> <span id="userName">User</span> <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <button class="dropdown-item" onclick="showProfilePage(); toggleDropdown();">
+                        <i class="fas fa-id-card"></i> My Profile
+                    </button>
+                    <button class="dropdown-item" onclick="openEditProfileModal(); toggleDropdown();">
+                        <i class="fas fa-user-edit"></i> Edit Profile
+                    </button>
+                    <button class="dropdown-item" onclick="openChangePasswordModal(); toggleDropdown();">
+                        <i class="fas fa-key"></i> Change Password
+                    </button>
+                    <button class="dropdown-item" onclick="openDataSettingsModal(); toggleDropdown();">
+                        <i class="fas fa-database"></i> Data Management
+                    </button>
+                    <div class="dropdown-divider"></div>
+                    <button class="dropdown-item" onclick="logout(); toggleDropdown();">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container" id="dashboardPage">
+            <div class="welcome-banner">
+                <div class="welcome-text">
+                    <h2>Welcome to Expense Tracker 💰</h2>
+                    <p>Track, manage and analyze your daily expenses</p>
+                </div>
+                <div class="stat-badge"><i class="fas fa-calendar-alt"></i> Live Dashboard</div>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-chart-pie"></i> Expense Analytics</h2>
+                        <span class="badge">Updated</span>
+                    </div>
+                    <div class="total-expense">
+                        <h3>Total Expenses</h3>
+                        <div class="amount">₹<span id="totalAmount">0.00</span></div>
+                    </div>
+                    <div class="chart-toggle-buttons">
+                        <button id="pieChartBtn" onclick="setChartType('pie')">Pie Chart</button>
+                        <button id="barChartBtn" onclick="setChartType('bar')">Bar Chart</button>
+                    </div>
+                    <div class="chart-container"><canvas id="expenseChart"></canvas></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-chart-simple"></i> Category Summary</h2>
+                    </div>
+                    <div id="categorySummary" class="category-list"></div>
+                    
+                    <div class="budget-section">
+                        <h3><i class="fas fa-target"></i> Monthly Budget</h3>
+                        <div class="budget-input-group">
+                            <input type="number" id="budgetAmount" placeholder="Set monthly budget (₹)">
+                            <button class="btn-set-budget" onclick="setBudget()">Set Budget</button>
+                        </div>
+                        <div id="budgetAlert"></div>
+                    </div>
+                    <div class="insight-box"><i class="fas fa-info-circle"></i> <span>🔥 Highlighted row = Highest expense</span></div>
+                </div>
+            </div>
+
+            <!-- New Row for Month Comparison, Spending Forecast, Daily Limit -->
+            <div class="dashboard-grid-2">
+                <!-- Month Comparison Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-chart-line"></i> Month Comparison</h2>
+                    </div>
+                    <div id="comparisonResult">
+                        <p style="text-align: center; color: #888;">Add expenses to see comparison</p>
+                    </div>
+                </div>
+
+                <!-- Spending Forecast Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-chart-line"></i> Spending Forecast</h2>
+                    </div>
+                    <div id="forecastResult">
+                        <p style="text-align: center; color: #888;">Add more expenses for forecast</p>
+                    </div>
+                </div>
+
+                <!-- Daily Limit Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-sun"></i> Daily Spending Limit</h2>
+                    </div>
+                    <div class="budget-input-group">
+                        <input type="number" id="dailyLimitInput" placeholder="Set daily limit (₹)">
+                        <button class="btn-set-budget" onclick="setDailyLimit()">Set Limit</button>
+                    </div>
+                    <div id="dailyAlert"></div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="table-header">
+                    <h2><i class="fas fa-list"></i> Expense History</h2>
+                    <div class="filter-bar">
+                        <div class="filter-group">
+                            <i class="fas fa-filter"></i>
+                            <select id="categoryFilter">
+                                <option value="all">All Categories</option>
+                                <option value="Food">🍔 Food</option>
+                                <option value="Transport">🚗 Transport</option>
+                                <option value="Shopping">🛍️ Shopping</option>
+                                <option value="Bills">💡 Bills</option>
+                                <option value="Entertainment">🎬 Entertainment</option>
+                                <option value="Health">💊 Health</option>
+                                <option value="Other">📌 Other</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <i class="fas fa-calendar"></i>
+                            <input type="date" id="dateFilter">
+                        </div>
+                        <div class="filter-group">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="searchInput" placeholder="Search...">
+                        </div>
+                        <button class="btn-reset" onclick="resetFilters()"><i class="fas fa-sync-alt"></i> Reset</button>
+                        <button class="btn-export" onclick="exportToCSV()"><i class="fas fa-download"></i> Export</button>
+                        <button class="btn-clear" onclick="clearAllData()"><i class="fas fa-trash-alt"></i> Clear All</button>
+                    </div>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr><th>Date</th><th>Description</th><th>Category</th><th>Amount</th><th>Actions</th></tr>
+                        </thead>
+                        <tbody id="expenseList"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Page -->
+        <div class="container" id="profilePage" style="display: none;">
+            <div class="profile-container">
+                <div class="card profile-card">
+                    <div class="profile-header">
+                        <div class="profile-avatar">
+                            <i class="fas fa-user-circle"></i>
+                        </div>
+                        <h2 id="profileName">User Name</h2>
+                        <p id="profileEmail">user@example.com</p>
+                        <div class="profile-badge">
+                            <i class="fas fa-calendar-alt"></i> Member since: <span id="memberSince">Today</span>
+                        </div>
+                    </div>
+
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <div class="stat-value" id="statExpenses">0</div>
+                            <div class="stat-label">Total Expenses</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="statTotal">₹0</div>
+                            <div class="stat-label">Total Spent</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="statAvg">₹0</div>
+                            <div class="stat-label">Average Expense</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="statCategories">0</div>
+                            <div class="stat-label">Categories Used</div>
+                        </div>
+                    </div>
+
+                    <div class="profile-section">
+                        <h3><i class="fas fa-chart-line"></i> Spending Insights</h3>
+                        <div class="insight-item">
+                            <i class="fas fa-fire" style="color: #ff6b6b;"></i>
+                            <span>Most spent category: <strong id="topCategory">-</strong></span>
+                        </div>
+                        <div class="insight-item">
+                            <i class="fas fa-calendar-week" style="color: #4ecdc4;"></i>
+                            <span>Most active month: <strong id="activeMonth">-</strong></span>
+                        </div>
+                        <div class="insight-item">
+                            <i class="fas fa-gem" style="color: #f9ca24;"></i>
+                            <span>Highest expense: <strong id="highestExpense">-</strong></span>
+                        </div>
+                    </div>
+
+                    <div class="profile-actions">
+                        <button class="btn-logout" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="loginSection">
+        <div class="login-section">
+            <div class="card login-card">
+                <div class="login-header">
+                    <div class="login-icon"><i class="fas fa-wallet"></i></div>
+                    <h2>Expense Tracker</h2>
+                    <p>Manage your finances smartly</p>
+                </div>
+                <div class="toggle-buttons">
+                    <button class="toggle-btn active" onclick="showLoginForm('login')">Login</button>
+                    <button class="toggle-btn" onclick="showLoginForm('register')">Register</button>
+                </div>
+                <div id="loginForm" class="form-container active-form">
+                    <div class="input-group"><label><i class="fas fa-envelope"></i> Email</label><input type="email" id="loginEmail" placeholder="Enter your email"></div>
+                    <div class="input-group"><label><i class="fas fa-lock"></i> Password</label><input type="password" id="loginPassword" placeholder="Enter your password"></div>
+                    <button class="btn-save" onclick="login()"><i class="fas fa-sign-in-alt"></i> Login</button>
+                    <div id="loginMessage" class="message"></div>
+                </div>
+                <div id="registerForm" class="form-container">
+                    <div class="input-group"><label><i class="fas fa-user"></i> Full Name</label><input type="text" id="regName" placeholder="Enter your full name"></div>
+                    <div class="input-group"><label><i class="fas fa-envelope"></i> Email</label><input type="email" id="regEmail" placeholder="Enter your email"></div>
+                    <div class="input-group"><label><i class="fas fa-lock"></i> Password</label><input type="password" id="regPassword" placeholder="Create a password"></div>
+                    <div class="input-group"><label><i class="fas fa-check-circle"></i> Confirm Password</label><input type="password" id="regConfirmPassword" placeholder="Confirm your password"></div>
+                    <button class="btn-save" onclick="register()"><i class="fas fa-user-plus"></i> Register</button>
+                    <div id="registerMessage" class="message"></div>
+                </div>
+                <div class="demo-credentials">
+                    <p><i class="fas fa-info-circle"></i> Demo Credentials</p>
+                    <div class="demo-box"><span>Email: demo@expense.com</span><span>Password: demo123</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="expenseModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-icon"><i id="modalIcon" class="fas fa-plus-circle"></i></div>
+                <h2 id="modalTitle">Add Expense</h2>
+            </div>
+            <div class="input-group"><label><i class="fas fa-tag"></i> Description</label><input type="text" id="modalDescription" placeholder="e.g., Coffee, Movie"></div>
+            <div class="input-group"><label><i class="fas fa-rupee-sign"></i> Amount (₹)</label><input type="number" id="modalAmount" placeholder="0.00" step="0.01"></div>
+            <div class="input-group"><label><i class="fas fa-folder-open"></i> Category</label>
+                <select id="modalCategory">
+                    <option value="Food">🍔 Food</option>
+                    <option value="Transport">🚗 Transport</option>
+                    <option value="Shopping">🛍️ Shopping</option>
+                    <option value="Bills">💡 Bills</option>
+                    <option value="Entertainment">🎬 Entertainment</option>
+                    <option value="Health">💊 Health</option>
+                    <option value="Other">📌 Other</option>
+                </select>
+            </div>
+            <div class="input-group"><label><i class="fas fa-calendar-alt"></i> Date</label><input type="date" id="modalDate"></div>
+            <div class="input-group">
+                <label><i class="fas fa-sync-alt"></i> Recurring Expense?</label>
+                <div class="radio-group">
+                    <label><input type="radio" name="recurring" value="none" checked> One-time</label>
+                    <label><input type="radio" name="recurring" value="monthly"> Monthly Bill</label>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-save" onclick="saveExpenseFromModal()">Save</button>
+                <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div id="editProfileModal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <div class="modal-icon"><i class="fas fa-user-edit"></i></div>
+                <h2>Edit Profile</h2>
+            </div>
+            <div class="input-group">
+                <label><i class="fas fa-user"></i> Full Name</label>
+                <input type="text" id="editProfileName" placeholder="Enter your name">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-save" onclick="saveProfileChanges()">Save Changes</button>
+                <button class="btn-cancel" onclick="closeEditProfileModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div id="changePasswordModal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <div class="modal-icon"><i class="fas fa-key"></i></div>
+                <h2>Change Password</h2>
+            </div>
+            <div class="input-group">
+                <label><i class="fas fa-lock"></i> Current Password</label>
+                <input type="password" id="currentPassword" placeholder="Enter current password">
+            </div>
+            <div class="input-group">
+                <label><i class="fas fa-lock"></i> New Password</label>
+                <input type="password" id="newPassword" placeholder="Enter new password">
+            </div>
+            <div class="input-group">
+                <label><i class="fas fa-check-circle"></i> Confirm New Password</label>
+                <input type="password" id="confirmNewPassword" placeholder="Confirm new password">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-save" onclick="changePassword()">Update Password</button>
+                <button class="btn-cancel" onclick="closeChangePasswordModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Settings Modal -->
+    <div id="dataSettingsModal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <div class="modal-icon"><i class="fas fa-database"></i></div>
+                <h2>Data Management</h2>
+            </div>
+            <div class="data-options">
+                <div class="data-option" onclick="exportAllData()">
+                    <i class="fas fa-download"></i> Export All Data (JSON)
+                </div>
+                <div class="data-option" onclick="importData()">
+                    <i class="fas fa-upload"></i> Import Data from Backup
+                </div>
+                <div class="data-option danger" onclick="resetUserData()">
+                    <i class="fas fa-trash-alt"></i> Reset All My Data
+                </div>
+            </div>
+            <input type="file" id="importFile" style="display: none;" accept=".json" onchange="processImport(this)">
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeDataSettingsModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer"><p></p></div>
+
+    <script>
+        let expenses = [];
+        let chart = null;
+        let editId = null;
+        let currentChartType = 'doughnut';
+        let currentUserEmail = null;
+
+        // ============ USER-SPECIFIC DATA FUNCTIONS ============
+        function getStorageKey() {
+            return `expenses_${currentUserEmail}`;
+        }
+
+        function loadData() {
+            if (!currentUserEmail) return;
+            const key = getStorageKey();
+            const saved = localStorage.getItem(key);
+            if (saved) {
+                expenses = JSON.parse(saved);
+            } else {
+                expenses = [];
+            }
+        }
+        
+        function saveData() { 
+            if (!currentUserEmail) return;
+            const key = getStorageKey();
+            localStorage.setItem(key, JSON.stringify(expenses)); 
+        }
+        
+        function getNextId() { 
+            return expenses.length === 0 ? 1 : Math.max(...expenses.map(e => e.id)) + 1; 
+        }
+
+        // ============ USER MANAGEMENT ============
+        function loadUsers() {
+            const users = localStorage.getItem('users');
+            if (users) return JSON.parse(users);
+            const defaultUsers = [{ name: 'Demo User', email: 'demo@expense.com', password: 'demo123' }];
+            localStorage.setItem('users', JSON.stringify(defaultUsers));
+            return defaultUsers;
+        }
+        
+        function saveUsers(users) { 
+            localStorage.setItem('users', JSON.stringify(users)); 
+        }
+
+        // ============ BUDGET FUNCTIONS (User-specific) ============
+        function getBudgetKey() {
+            return `monthlyBudget_${currentUserEmail}`;
+        }
+
+        function setBudget() {
+            const budget = parseFloat(document.getElementById('budgetAmount').value);
+            if (isNaN(budget) || budget <= 0) { alert('Please enter valid budget'); return; }
+            localStorage.setItem(getBudgetKey(), budget);
+            checkBudget();
+            showNotification('Budget set!');
+        }
+
+        function checkBudget() {
+            const budget = localStorage.getItem(getBudgetKey());
+            const budgetInput = document.getElementById('budgetAmount');
+            if (budget && budgetInput) budgetInput.value = budget;
+            if (!budget) { document.getElementById('budgetAlert').innerHTML = '<div class="budget-info">📊 Set monthly budget</div>'; return; }
+            const currentMonth = new Date().getMonth();
+            const currentYear = new Date().getFullYear();
+            const monthExpenses = expenses.filter(e => { const d = new Date(e.date); return d.getMonth() === currentMonth && d.getFullYear() === currentYear; });
+            const total = monthExpenses.reduce((s, e) => s + e.amount, 0);
+            const budgetNum = parseFloat(budget);
+            const alertDiv = document.getElementById('budgetAlert');
+            if (total > budgetNum) {
+                alertDiv.innerHTML = `<div class="budget-warning"><i class="fas fa-exclamation-triangle"></i> Budget Exceeded! Spent ₹${total.toLocaleString('en-IN')} of ₹${budgetNum.toLocaleString('en-IN')}</div>`;
+            } else {
+                const remaining = budgetNum - total;
+                const percentUsed = ((total / budgetNum) * 100).toFixed(1);
+                if (percentUsed > 80) {
+                    alertDiv.innerHTML = `<div class="budget-warning"><i class="fas fa-hourglass-half"></i> ${percentUsed}% used! Only ₹${remaining.toLocaleString('en-IN')} left</div>`;
+                } else {
+                    alertDiv.innerHTML = `<div class="budget-safe"><i class="fas fa-check-circle"></i> ₹${total.toLocaleString('en-IN')} spent | ₹${remaining.toLocaleString('en-IN')} remaining</div>`;
+                }
+            }
+        }
+
+        // ============ MONTH COMPARISON FUNCTION ============
+        function updateMonthComparison() {
+            if (expenses.length === 0) {
+                document.getElementById('comparisonResult').innerHTML = '<p style="text-align: center; color: #888;">Add expenses to see comparison</p>';
+                return;
+            }
+            
+            const now = new Date();
+            const currentMonth = now.getMonth();
+            const currentYear = now.getFullYear();
+            let prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+            let prevYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+            
+            const currentTotal = expenses.filter(e => {
+                const d = new Date(e.date);
+                return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+            }).reduce((s, e) => s + e.amount, 0);
+            
+            const prevTotal = expenses.filter(e => {
+                const d = new Date(e.date);
+                return d.getMonth() === prevMonth && d.getFullYear() === prevYear;
+            }).reduce((s, e) => s + e.amount, 0);
+            
+            const difference = currentTotal - prevTotal;
+            const percentChange = prevTotal === 0 ? (currentTotal > 0 ? 100 : 0) : ((difference / prevTotal) * 100).toFixed(1);
+            const emoji = difference > 0 ? '📈' : (difference < 0 ? '📉' : '➡️');
+            const colorClass = difference > 0 ? 'comparison-up' : (difference < 0 ? 'comparison-down' : 'comparison-neutral');
+            
+            document.getElementById('comparisonResult').innerHTML = `
+                <div style="text-align: center;">
+                    <p>📅 Last Month: <strong>₹${prevTotal.toLocaleString('en-IN')}</strong></p>
+                    <p>📅 This Month: <strong>₹${currentTotal.toLocaleString('en-IN')}</strong></p>
+                    <div class="comparison-value ${colorClass}">
+                        ${emoji} ${difference > 0 ? '+' : ''}₹${difference.toLocaleString('en-IN')} (${percentChange}%)
+                    </div>
+                    <p style="font-size: 12px; margin-top: 10px; color: #888;">
+                        ${difference > 0 ? 'Spending increased compared to last month' : (difference < 0 ? 'Great! Spending decreased!' : 'No change from last month')}
+                    </p>
+                </div>
+            `;
+        }
+
+        // ============ SPENDING FORECAST FUNCTION ============
+        function updateSpendingForecast() {
+            if (expenses.length < 3) {
+                document.getElementById('forecastResult').innerHTML = '<p style="text-align: center; color: #888;">📊 Add at least 3 expenses for accurate forecast</p>';
+                return;
+            }
+            
+            const monthlyTotals = {};
+            expenses.forEach(e => {
+                const month = new Date(e.date).toLocaleString('default', { month: 'long', year: 'numeric' });
+                monthlyTotals[month] = (monthlyTotals[month] || 0) + e.amount;
+            });
+            
+            const totals = Object.values(monthlyTotals);
+            const avgSpending = totals.reduce((a, b) => a + b, 0) / totals.length;
+            const lastMonth = totals[totals.length - 1] || 0;
+            const trend = lastMonth > avgSpending ? '📈 increasing' : (lastMonth < avgSpending ? '📉 decreasing' : '➡️ stable');
+            const forecastNext = Math.round(avgSpending * (lastMonth > avgSpending ? 1.05 : 0.95));
+            
+            document.getElementById('forecastResult').innerHTML = `
+                <div style="text-align: center;">
+                    <p>📊 Avg monthly spend: <strong>₹${avgSpending.toLocaleString('en-IN')}</strong></p>
+                    <p>📈 Trend: ${trend}</p>
+                    <div style="background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 15px; padding: 12px; margin-top: 10px;">
+                        🔮 <strong>Next month forecast:</strong><br>
+                        ₹${forecastNext.toLocaleString('en-IN')}
+                    </div>
+                    <p style="font-size: 11px; margin-top: 8px; color: #888;">Based on ${totals.length} month(s) of data</p>
+                </div>
+            `;
+        }
+
+        // ============ DAILY LIMIT FUNCTIONS ============
+        function getDailyLimitKey() {
+            return `dailyLimit_${currentUserEmail}`;
+        }
+
+        function setDailyLimit() {
+            const limit = parseFloat(document.getElementById('dailyLimitInput').value);
+            if (isNaN(limit) || limit <= 0) { alert('Please enter a valid daily limit'); return; }
+            localStorage.setItem(getDailyLimitKey(), limit);
+            checkDailyLimit();
+            showNotification('Daily limit set!');
+        }
+
+        function checkDailyLimit() {
+            const limit = localStorage.getItem(getDailyLimitKey());
+            const limitInput = document.getElementById('dailyLimitInput');
+            if (limit && limitInput) limitInput.value = limit;
+            if (!limit) { 
+                document.getElementById('dailyAlert').innerHTML = '<div class="budget-info">📊 Set daily spending limit</div>'; 
+                return; 
+            }
+            
+            const today = new Date().toDateString();
+            const todayExpenses = expenses.filter(e => new Date(e.date).toDateString() === today);
+            const total = todayExpenses.reduce((s, e) => s + e.amount, 0);
+            const limitNum = parseFloat(limit);
+            const alertDiv = document.getElementById('dailyAlert');
+            
+            if (total > limitNum) {
+                const overspent = total - limitNum;
+                alertDiv.innerHTML = `<div class="budget-warning"><i class="fas fa-exclamation-triangle"></i> Daily limit exceeded!<br>Spent ₹${total.toLocaleString('en-IN')} of ₹${limitNum.toLocaleString('en-IN')}<br><small>Overspent by ₹${overspent.toLocaleString('en-IN')}</small></div>`;
+                showNotification('Daily spending limit exceeded!', 'warning');
+            } else {
+                const remaining = limitNum - total;
+                const percentUsed = ((total / limitNum) * 100).toFixed(1);
+                if (percentUsed > 80) {
+                    alertDiv.innerHTML = `<div class="budget-warning"><i class="fas fa-hourglass-half"></i> ${percentUsed}% used today!<br>₹${remaining.toLocaleString('en-IN')} left for today</div>`;
+                } else {
+                    alertDiv.innerHTML = `<div class="budget-safe"><i class="fas fa-check-circle"></i> ₹${remaining.toLocaleString('en-IN')} left for today</div>`;
+                }
+            }
+        }
+
+        // ============ DROPDOWN FUNCTIONS ============
+        function toggleDropdown() {
+            const dropdown = document.getElementById('dropdownMenu');
+            dropdown.classList.toggle('show');
+        }
+
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('dropdownMenu');
+            const userDropdown = document.querySelector('.user-dropdown');
+            if (dropdown && userDropdown && !userDropdown.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        // ============ AUTH FUNCTIONS ============
+        function showLoginForm(type) {
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const btns = document.querySelectorAll('.toggle-btn');
+            if (type === 'login') {
+                loginForm.classList.add('active-form');
+                registerForm.classList.remove('active-form');
+                btns[0].classList.add('active');
+                btns[1].classList.remove('active');
+            } else {
+                registerForm.classList.add('active-form');
+                loginForm.classList.remove('active-form');
+                btns[1].classList.add('active');
+                btns[0].classList.remove('active');
+            }
+        }
+
+        function login() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            const msgDiv = document.getElementById('loginMessage');
+            if (!email || !password) { msgDiv.textContent = 'Please enter email and password'; msgDiv.className = 'message error'; return; }
+            const users = loadUsers();
+            const user = users.find(u => u.email === email && u.password === password);
+            if (user) {
+                currentUserEmail = email;
+                localStorage.setItem('currentUser', JSON.stringify({ name: user.name, email: user.email }));
+                msgDiv.textContent = 'Login successful! Redirecting...';
+                msgDiv.className = 'message success';
+                setTimeout(() => { 
+                    document.getElementById('loginSection').style.display = 'none'; 
+                    document.getElementById('appSection').style.display = 'block'; 
+                    document.getElementById('userName').innerText = user.name;
+                    loadData();
+                    loadDarkMode(); 
+                    refreshAll(); 
+                    updateProfileStats();
+                }, 1000);
+            } else {
+                msgDiv.textContent = 'Invalid email or password';
+                msgDiv.className = 'message error';
+            }
+        }
+
+        function register() {
+            const name = document.getElementById('regName').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const confirm = document.getElementById('regConfirmPassword').value;
+            const msgDiv = document.getElementById('registerMessage');
+            if (!name || !email || !password || !confirm) { msgDiv.textContent = 'Please fill all fields'; msgDiv.className = 'message error'; return; }
+            if (password !== confirm) { msgDiv.textContent = 'Passwords do not match'; msgDiv.className = 'message error'; return; }
+            if (password.length < 4) { msgDiv.textContent = 'Password must be at least 4 characters'; msgDiv.className = 'message error'; return; }
+            const users = loadUsers();
+            if (users.find(u => u.email === email)) { msgDiv.textContent = 'Email already registered'; msgDiv.className = 'message error'; return; }
+            users.push({ name, email, password });
+            saveUsers(users);
+            msgDiv.textContent = 'Registration successful! Please login.';
+            msgDiv.className = 'message success';
+            setTimeout(() => showLoginForm('login'), 1500);
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            currentUserEmail = null;
+            expenses = [];
+            document.getElementById('appSection').style.display = 'none';
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('loginEmail').value = '';
+            document.getElementById('loginPassword').value = '';
+            document.getElementById('regName').value = '';
+            document.getElementById('regEmail').value = '';
+            document.getElementById('regPassword').value = '';
+            document.getElementById('regConfirmPassword').value = '';
+            const dropdown = document.getElementById('dropdownMenu');
+            if (dropdown) dropdown.classList.remove('show');
+        }
+
+        function showPage(page) {
+            const dashboardPage = document.getElementById('dashboardPage');
+            const profilePage = document.getElementById('profilePage');
+            const navButtons = document.querySelectorAll('.nav-links button');
+            
+            if (page === 'dashboard') {
+                dashboardPage.style.display = 'block';
+                profilePage.style.display = 'none';
+                navButtons[0].classList.add('active');
+                refreshAll();
+            } else if (page === 'profile') {
+                dashboardPage.style.display = 'none';
+                profilePage.style.display = 'block';
+                updateProfileStats();
+            }
+        }
+
+        function showProfilePage() {
+            showPage('profile');
+        }
+
+        function updateProfileStats() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (currentUser) {
+                document.getElementById('profileName').innerText = currentUser.name;
+                document.getElementById('profileEmail').innerText = currentUser.email;
+            }
+            
+            let memberSince = localStorage.getItem(`memberSince_${currentUserEmail}`);
+            if (!memberSince && currentUserEmail) {
+                memberSince = new Date().toLocaleDateString('en-IN');
+                localStorage.setItem(`memberSince_${currentUserEmail}`, memberSince);
+            }
+            document.getElementById('memberSince').innerText = memberSince || 'Today';
+            
+            const totalExpenses = expenses.length;
+            const totalAmount = expenses.reduce((s, e) => s + e.amount, 0);
+            const avgExpense = totalExpenses > 0 ? totalAmount / totalExpenses : 0;
+            const categoriesUsed = new Set(expenses.map(e => e.category)).size;
+            
+            document.getElementById('statExpenses').innerText = totalExpenses;
+            document.getElementById('statTotal').innerText = `₹${totalAmount.toLocaleString('en-IN')}`;
+            document.getElementById('statAvg').innerText = `₹${Math.round(avgExpense).toLocaleString('en-IN')}`;
+            document.getElementById('statCategories').innerText = categoriesUsed;
+            
+            const categoryTotals = {};
+            expenses.forEach(e => categoryTotals[e.category] = (categoryTotals[e.category] || 0) + e.amount);
+            let topCategory = 'None';
+            let maxAmount = 0;
+            for (let [cat, amt] of Object.entries(categoryTotals)) {
+                if (amt > maxAmount) {
+                    maxAmount = amt;
+                    topCategory = cat;
+                }
+            }
+            document.getElementById('topCategory').innerText = topCategory;
+            
+            const monthCount = {};
+            expenses.forEach(e => {
+                const month = new Date(e.date).toLocaleString('default', { month: 'long', year: 'numeric' });
+                monthCount[month] = (monthCount[month] || 0) + 1;
+            });
+            let activeMonth = 'None';
+            let maxCount = 0;
+            for (let [month, count] of Object.entries(monthCount)) {
+                if (count > maxCount) {
+                    maxCount = count;
+                    activeMonth = month;
+                }
+            }
+            document.getElementById('activeMonth').innerText = activeMonth;
+            
+            if (expenses.length > 0) {
+                const highest = expenses.reduce((max, e) => e.amount > max.amount ? e : max, expenses[0]);
+                document.getElementById('highestExpense').innerText = `${highest.description} (₹${highest.amount.toLocaleString('en-IN')})`;
+            }
+        }
+
+        function openEditProfileModal() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            document.getElementById('editProfileName').value = currentUser.name;
+            document.getElementById('editProfileModal').style.display = 'flex';
+        }
+
+        function closeEditProfileModal() {
+            document.getElementById('editProfileModal').style.display = 'none';
+        }
+
+        function saveProfileChanges() {
+            const newName = document.getElementById('editProfileName').value.trim();
+            if (!newName) {
+                alert('Please enter a name');
+                return;
+            }
+            
+            const users = loadUsers();
+            const userIndex = users.findIndex(u => u.email === currentUserEmail);
+            if (userIndex !== -1) {
+                users[userIndex].name = newName;
+                saveUsers(users);
+                localStorage.setItem('currentUser', JSON.stringify({ name: newName, email: currentUserEmail }));
+                document.getElementById('userName').innerText = newName;
+                updateProfileStats();
+                closeEditProfileModal();
+                showNotification('Profile updated successfully!');
+            }
+        }
+
+        function openChangePasswordModal() {
+            document.getElementById('changePasswordModal').style.display = 'flex';
+        }
+
+        function closeChangePasswordModal() {
+            document.getElementById('changePasswordModal').style.display = 'none';
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmNewPassword').value = '';
+        }
+
+        function changePassword() {
+            const currentPwd = document.getElementById('currentPassword').value;
+            const newPwd = document.getElementById('newPassword').value;
+            const confirmPwd = document.getElementById('confirmNewPassword').value;
+            
+            const users = loadUsers();
+            const user = users.find(u => u.email === currentUserEmail);
+            
+            if (!user || user.password !== currentPwd) {
+                alert('Current password is incorrect');
+                return;
+            }
+            
+            if (newPwd.length < 4) {
+                alert('New password must be at least 4 characters');
+                return;
+            }
+            
+            if (newPwd !== confirmPwd) {
+                alert('New passwords do not match');
+                return;
+            }
+            
+            const userIndex = users.findIndex(u => u.email === currentUserEmail);
+            users[userIndex].password = newPwd;
+            saveUsers(users);
+            
+            closeChangePasswordModal();
+            showNotification('Password changed successfully!');
+        }
+
+        function openDataSettingsModal() {
+            document.getElementById('dataSettingsModal').style.display = 'flex';
+        }
+
+        function closeDataSettingsModal() {
+            document.getElementById('dataSettingsModal').style.display = 'none';
+        }
+
+        function exportAllData() {
+            const allData = {
+                user: localStorage.getItem('currentUser'),
+                expenses: expenses,
+                budget: localStorage.getItem(getBudgetKey()),
+                dailyLimit: localStorage.getItem(getDailyLimitKey()),
+                exportDate: new Date().toISOString()
+            };
+            
+            const dataStr = JSON.stringify(allData, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `expense_tracker_backup_${new Date().toISOString().slice(0,10)}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showNotification('Data exported successfully!');
+        }
+
+        function importData() {
+            document.getElementById('importFile').click();
+        }
+
+        function processImport(input) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (imported.expenses && Array.isArray(imported.expenses)) {
+                        expenses = imported.expenses;
+                        saveData();
+                        if (imported.budget) {
+                            localStorage.setItem(getBudgetKey(), imported.budget);
+                        }
+                        if (imported.dailyLimit) {
+                            localStorage.setItem(getDailyLimitKey(), imported.dailyLimit);
+                        }
+                        refreshAll();
+                        updateProfileStats();
+                        showNotification('Data imported successfully!');
+                    } else {
+                        alert('Invalid backup file');
+                    }
+                } catch (err) {
+                    alert('Error reading file');
+                }
+            };
+            reader.readAsText(file);
+            input.value = '';
+        }
+
+        function resetUserData() {
+            if (confirm('⚠️ WARNING: This will delete ALL your expenses and settings. This cannot be undone!')) {
+                if (confirm('Are you absolutely sure? Click OK to confirm')) {
+                    expenses = [];
+                    saveData();
+                    localStorage.removeItem(getBudgetKey());
+                    localStorage.removeItem(getDailyLimitKey());
+                    refreshAll();
+                    updateProfileStats();
+                    closeDataSettingsModal();
+                    showNotification('All data has been reset!');
+                }
+            }
+        }
+
+        function openAddModal() {
+            editId = null;
+            document.getElementById('modalTitle').innerText = 'Add Expense';
+            document.getElementById('modalIcon').className = 'fas fa-plus-circle';
+            document.getElementById('modalDescription').value = '';
+            document.getElementById('modalAmount').value = '';
+            document.getElementById('modalCategory').value = 'Food';
+            document.getElementById('modalDate').valueAsDate = new Date();
+            document.querySelector('input[value="none"]').checked = true;
+            document.getElementById('expenseModal').style.display = 'flex';
+        }
+
+        function openEditModal(id) {
+            const expense = expenses.find(e => e.id === id);
+            if (expense) {
+                editId = id;
+                document.getElementById('modalTitle').innerText = 'Edit Expense';
+                document.getElementById('modalIcon').className = 'fas fa-pen';
+                document.getElementById('modalDescription').value = expense.description;
+                document.getElementById('modalAmount').value = expense.amount;
+                document.getElementById('modalCategory').value = expense.category;
+                document.getElementById('modalDate').value = expense.date;
+                if (expense.recurring === 'monthly') {
+                    document.querySelector('input[value="monthly"]').checked = true;
+                } else {
+                    document.querySelector('input[value="none"]').checked = true;
+                }
+                document.getElementById('expenseModal').style.display = 'flex';
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('expenseModal').style.display = 'none';
+            editId = null;
+        }
+
+        function saveExpenseFromModal() {
+            const description = document.getElementById('modalDescription').value;
+            const amount = parseFloat(document.getElementById('modalAmount').value);
+            const category = document.getElementById('modalCategory').value;
+            const date = document.getElementById('modalDate').value;
+            const recurring = document.querySelector('input[name="recurring"]:checked').value;
+            
+            if (!description || isNaN(amount) || amount <= 0 || !date) {
+                alert('Please fill all fields correctly!');
+                return;
+            }
+            if (editId) {
+                const index = expenses.findIndex(e => e.id === editId);
+                if (index !== -1) {
+                    expenses[index] = { id: editId, description, amount, category, date, recurring };
+                }
+            } else {
+                expenses.push({ id: getNextId(), description, amount, category, date, recurring });
+            }
+            saveData();
+            closeModal();
+            refreshAll();
+            updateProfileStats();
+            showNotification(editId ? 'Expense updated!' : 'Expense added!');
+        }
+
+        function deleteExpense(id) {
+            if (confirm('Delete this expense?')) {
+                expenses = expenses.filter(e => e.id !== id);
+                saveData();
+                refreshAll();
+                updateProfileStats();
+                showNotification('Expense deleted!');
+            }
+        }
+
+        function displayExpenses() {
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const dateFilter = document.getElementById('dateFilter').value;
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            let filtered = [...expenses];
+            if (categoryFilter !== 'all') filtered = filtered.filter(e => e.category === categoryFilter);
+            if (dateFilter) filtered = filtered.filter(e => e.date === dateFilter);
+            if (searchTerm) filtered = filtered.filter(e => e.description.toLowerCase().includes(searchTerm));
+            filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            const maxAmount = filtered.length > 0 ? Math.max(...filtered.map(e => e.amount)) : 0;
+            
+            const tbody = document.getElementById('expenseList');
+            tbody.innerHTML = '';
+            if (filtered.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center">No expenses found</td></tr>'; return; }
+            
+            filtered.forEach(expense => {
+                const row = tbody.insertRow();
+                const isHighest = expense.amount === maxAmount && filtered.length > 1;
+                if (isHighest) row.style.background = '#fff3cd';
+                
+                row.innerHTML = `
+                    <td class="date-cell">${new Date(expense.date).toLocaleDateString('en-IN')}</td>
+                    <td class="desc-cell">${expense.description}${expense.recurring === 'monthly' ? '<span class="recurring-badge">🔄 Monthly</span>' : ''}</td>
+                    <td class="cat-cell"><span class="category-badge ${expense.category.toLowerCase()}">${expense.category}</span></td>
+                    <td class="amount-cell">₹${expense.amount.toLocaleString('en-IN', {minimumFractionDigits: 2})} ${isHighest ? '🔥' : ''}</td>
+                    <td class="action-buttons">
+                        <button class="btn-edit" onclick="openEditModal(${expense.id})"><i class="fas fa-edit"></i></button>
+                        <button class="btn-delete" onclick="deleteExpense(${expense.id})"><i class="fas fa-trash-alt"></i></button>
+                    </td>
+                `;
+            });
+        }
+
+        function updateTotal() {
+            const total = expenses.reduce((s, e) => s + e.amount, 0);
+            document.getElementById('totalAmount').innerText = total.toLocaleString('en-IN', {minimumFractionDigits: 2});
+        }
+
+        function setChartType(type) {
+            const pieBtn = document.getElementById('pieChartBtn');
+            const barBtn = document.getElementById('barChartBtn');
+            
+            if (type === 'pie') {
+                currentChartType = 'doughnut';
+                pieBtn.style.background = '#667eea';
+                pieBtn.style.color = 'white';
+                barBtn.style.background = '#e0e0e0';
+                barBtn.style.color = '#333';
+            } else {
+                currentChartType = 'bar';
+                barBtn.style.background = '#667eea';
+                barBtn.style.color = 'white';
+                pieBtn.style.background = '#e0e0e0';
+                pieBtn.style.color = '#333';
+            }
+            updateChart();
+        }
+
+        function updateChart() {
+            const categories = {};
+            expenses.forEach(e => categories[e.category] = (categories[e.category] || 0) + e.amount);
+            const ctx = document.getElementById('expenseChart').getContext('2d');
+            if (chart) chart.destroy();
+            
+            if (currentChartType === 'doughnut') {
+                chart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: { labels: Object.keys(categories), datasets: [{ data: Object.values(categories), backgroundColor: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8'], borderWidth: 0, hoverOffset: 15 }] },
+                    options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom' } }, cutout: '60%' }
+                });
+            } else {
+                chart = new Chart(ctx, {
+                    type: 'bar',
+                    data: { labels: Object.keys(categories), datasets: [{ label: 'Expense Amount (₹)', data: Object.values(categories), backgroundColor: '#667eea', borderRadius: 10 }] },
+                    options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true } } }
+                });
+            }
+        }
+
+        function updateSummary() {
+            const categories = {};
+            expenses.forEach(e => categories[e.category] = (categories[e.category] || 0) + e.amount);
+            const summaryDiv = document.getElementById('categorySummary');
+            summaryDiv.innerHTML = '';
+            const categoryColors = { Food: '#FF6B6B', Transport: '#4ECDC4', Shopping: '#45B7D1', Bills: '#96CEB4', Entertainment: '#FFEAA7', Health: '#DDA0DD', Other: '#98D8C8' };
+            if (expenses.length === 0) { summaryDiv.innerHTML = '<div style="text-align:center;padding:20px">No data yet</div>'; return; }
+            const total = expenses.reduce((s, e) => s + e.amount, 0);
+            for (let [cat, amount] of Object.entries(categories)) {
+                const percentage = ((amount / total) * 100).toFixed(1);
+                summaryDiv.innerHTML += `
+                    <div class="category-item">
+                        <div class="category-info"><span class="category-dot" style="background: ${categoryColors[cat] || '#98D8C8'}"></span><span class="category-name">${cat}</span></div>
+                        <div class="category-stats"><span class="category-amount">₹${amount.toLocaleString('en-IN')}</span><span class="category-percent">${percentage}%</span></div>
+                    </div>
+                    <div class="progress-bar"><div class="progress-fill" style="width: ${percentage}%; background: ${categoryColors[cat] || '#98D8C8'}"></div></div>
+                `;
+            }
+        }
+
+        function resetFilters() {
+            document.getElementById('categoryFilter').value = 'all';
+            document.getElementById('dateFilter').value = '';
+            document.getElementById('searchInput').value = '';
+            displayExpenses();
+        }
+
+        function exportToCSV() {
+            if (expenses.length === 0) { alert('No expenses to export!'); return; }
+            let csv = "ID,Date,Description,Category,Amount (₹),Recurring\n";
+            expenses.forEach(e => csv += `${e.id},${e.date},${e.description},${e.category},${e.amount},${e.recurring || 'none'}\n`);
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `expenses_${new Date().toISOString().slice(0,10)}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showNotification('Exported!');
+        }
+
+        function clearAllData() {
+            if (confirm('⚠️ Delete ALL expenses? This cannot be undone!')) {
+                expenses = [];
+                saveData();
+                refreshAll();
+                updateProfileStats();
+                showNotification('All data cleared');
+            }
+        }
+
+        function toggleDarkMode() {
+            if (document.getElementById('loginSection').style.display !== 'none') {
+                return;
+            }
+            
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDark);
+            
+            const darkModeBtn = document.querySelector('.nav-links button:nth-child(3)');
+            if (darkModeBtn) {
+                if (isDark) {
+                    darkModeBtn.innerHTML = '<i class="fas fa-sun"></i> Light Mode';
+                } else {
+                    darkModeBtn.innerHTML = '<i class="fas fa-moon"></i> Dark Mode';
+                }
+            }
+        }
+
+        function loadDarkMode() {
+            if (document.getElementById('loginSection').style.display === 'none') {
+                const isDark = localStorage.getItem('darkMode') === 'true';
+                if (isDark) {
+                    document.body.classList.add('dark-mode');
+                    const darkModeBtn = document.querySelector('.nav-links button:nth-child(3)');
+                    if (darkModeBtn) {
+                        darkModeBtn.innerHTML = '<i class="fas fa-sun"></i> Light Mode';
+                    }
+                }
+            }
+        }
+
+        function showNotification(msg) {
+            const notif = document.createElement('div');
+            notif.className = 'notification';
+            notif.innerHTML = `<i class="fas fa-check-circle"></i> ${msg}`;
+            document.body.appendChild(notif);
+            setTimeout(() => notif.remove(), 2000);
+        }
+
+        function refreshAll() {
+            displayExpenses();
+            updateTotal();
+            updateChart();
+            updateSummary();
+            checkBudget();
+            updateMonthComparison();
+            updateSpendingForecast();
+            checkDailyLimit();
+        }
+
+        document.getElementById('categoryFilter').addEventListener('change', displayExpenses);
+        document.getElementById('dateFilter').addEventListener('change', displayExpenses);
+        document.getElementById('searchInput').addEventListener('keyup', displayExpenses);
+
+        if (localStorage.getItem('currentUser')) {
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            currentUserEmail = user.email;
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('appSection').style.display = 'block';
+            document.getElementById('userName').innerText = user.name;
+            loadData();
+            loadDarkMode();
+            refreshAll();
+        }
+    </script>
+</body>
+</html>

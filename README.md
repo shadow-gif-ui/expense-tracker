@@ -1,2 +1,2 @@
 # expense-tracker
-Project - Expense Tracker
+BCA Final Year Project - Expense Tracker
